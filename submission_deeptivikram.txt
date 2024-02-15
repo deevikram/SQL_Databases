@@ -1,0 +1,932 @@
+/*
+
+-----------------------------------------------------------------------------------------------------------------------------------
+                                               Guidelines
+-----------------------------------------------------------------------------------------------------------------------------------
+
+NEW WHEELS PROJECT SUBMISSION - SQL SCRIPTS FILE			
+
+
+/*-----------------------------------------------------------------------------------------------------------------------------------
+
+                                               Tables Creation
+                                               
+-----------------------------------------------------------------------------------------------------------------------------------*/
+
+-- To drop the table if already exists
+
+--Drop the temp table if it already exists
+DROP TABLE temp_t;
+
+--Drop the master table if it already exists
+DROP TABLE vehicles_t;
+
+--Drop the order_t table if it already exists
+DROP TABLE order_t;
+
+--Drop the customer_t table if it already exists
+DROP TABLE customer_t;
+
+--Drop the shipper_t table if it already exists
+DROP TABLE shipper_t;
+
+--Drop the product_t table if it already exists
+DROP TABLE product_t;
+
+
+--CREATE A TEMPORARY TABLE temp_t which is a table that will help us to import the raw data
+
+CREATE TABLE temp_t (
+           SHIPPER_ID INTEGER,
+           SHIPPER_NAME VARCHAR2(80),
+           SHIPPER_CONTACT_DETAILS VARCHAR2(50),
+           PRODUCT_ID INTEGER,
+           VEHICLE_MAKER VARCHAR2(20),
+           VEHICLE_MODEL VARCHAR2(30),
+           VEHICLE_COLOR VARCHAR2(20),
+           VEHICLE_MODEL_YEAR INTEGER,
+           VEHICLE_PRICE DECIMAL(10,5),
+           QUANTITY INTEGER,
+           CUSTOMER_ID VARCHAR2(20),
+           CUSTOMER_NAME VARCHAR2(80),
+           GENDER VARCHAR2(10),
+           JOB_TITLE VARCHAR2(80),
+           PHONE_NUMBER VARCHAR2(15),
+           EMAIL_ADDRESS VARCHAR2(50),
+           CITY VARCHAR2(60),
+           COUNTRY VARCHAR2(50),
+           STATE VARCHAR2(50),
+           CUSTOMER_ADDRESS VARCHAR2(255),
+           ORDER_DATE DATE NOT NULL,
+           ORDER_ID VARCHAR2(20),
+           SHIP_DATE DATE,
+           SHIP_MODE VARCHAR2(50),
+           SHIPPING VARCHAR2(10),
+           POSTAL_CODE NUMBER(10),
+           DISCOUNT DECIMAL(4,2),
+           CREDIT_CARD_TYPE VARCHAR2(50),
+           CREDIT_CARD_NUMBER CHAR(20),
+           CUSTOMER_FEEDBACK VARCHAR2(50),
+           QUARTER_NUMBER INTEGER,
+           PRIMARY KEY (SHIPPER_ID, PRODUCT_ID, CUSTOMER_ID, ORDER_ID)
+);
+/
+
+--Create the master table vehicles_t. It has same structure as temp_t.
+
+CREATE TABLE vehicles_t (
+           SHIPPER_ID INTEGER,
+           SHIPPER_NAME VARCHAR2(80),
+           SHIPPER_CONTACT_DETAILS VARCHAR2(50),
+           PRODUCT_ID INTEGER,
+           VEHICLE_MAKER VARCHAR2(20),
+           VEHICLE_MODEL VARCHAR2(30),
+           VEHICLE_COLOR VARCHAR2(20),
+           VEHICLE_MODEL_YEAR INTEGER,
+           VEHICLE_PRICE DECIMAL(10,5),
+           QUANTITY INTEGER,
+           CUSTOMER_ID VARCHAR2(20),
+           CUSTOMER_NAME VARCHAR2(80),
+           GENDER VARCHAR2(10),
+           JOB_TITLE VARCHAR2(80),
+           PHONE_NUMBER VARCHAR2(15),
+           EMAIL_ADDRESS VARCHAR2(50),
+           CITY VARCHAR2(60),
+           COUNTRY VARCHAR2(50),
+           STATE VARCHAR2(50),
+           CUSTOMER_ADDRESS VARCHAR2(255),
+           ORDER_DATE DATE NOT NULL,
+           ORDER_ID VARCHAR2(20),
+           SHIP_DATE DATE,
+           SHIP_MODE VARCHAR2(50),
+           SHIPPING VARCHAR2(10),
+           POSTAL_CODE NUMBER(10),
+           DISCOUNT DECIMAL(4,2),
+           CREDIT_CARD_TYPE VARCHAR2(50),
+           CREDIT_CARD_NUMBER CHAR(20),
+           CUSTOMER_FEEDBACK VARCHAR2(50),
+           QUARTER_NUMBER INTEGER,
+           PRIMARY KEY (SHIPPER_ID, PRODUCT_ID, CUSTOMER_ID, ORDER_ID)
+);
+/
+
+
+-- Create a order table “order_t” where all the data related to the order is present
+
+CREATE TABLE order_t(
+          ORDER_ID VARCHAR2(20),
+          CUSTOMER_ID VARCHAR(20),
+          SHIPPER_ID INTEGER,
+          PRODUCT_ID INTEGER,
+          QUANTITY INTEGER,
+          VEHICLE_PRICE DECIMAL(8,2),
+          ORDER_DATE DATE,
+          SHIP_DATE DATE,
+          DISCOUNT DECIMAL(4,2),
+          SHIP_MODE VARCHAR2(50),
+          SHIPPING VARCHAR2(10),
+          CUSTOMER_FEEDBACK VARCHAR2(50),
+          QUARTER_NUMBER INTEGER,
+          PRIMARY KEY(ORDER_ID)
+);
+/
+
+--Create a customer table “customer_t” where all the data related to the customer is present
+
+CREATE TABLE customer_t (
+          CUSTOMER_ID VARCHAR(20),
+          CUSTOMER_NAME VARCHAR2(80),
+          GENDER VARCHAR2(10),
+          JOB_TITLE VARCHAR2(80),
+          PHONE_NUMBER VARCHAR2(15),
+          EMAIL_ADDRESS VARCHAR2(50),
+          CITY VARCHAR2(60),
+          COUNTRY VARCHAR2(50),
+          STATE VARCHAR2(50),
+          CUSTOMER_ADDRESS VARCHAR2(255),
+          POSTAL_CODE NUMBER(10),
+          CREDIT_CARD_TYPE VARCHAR2(50),
+          CREDIT_CARD_NUMBER CHAR(20),
+          PRIMARY KEY (CUSTOMER_ID)
+);
+/
+
+-- Create a shipper table “shipper_t” where all the data related to the shipping is present
+
+CREATE TABLE shipper_t (
+          SHIPPER_ID INTEGER,
+          SHIPPER_NAME VARCHAR2(80),
+          SHIPPER_CONTACT_DETAILS VARCHAR2(50),
+          PRIMARY KEY (SHIPPER_ID)
+);
+/
+
+--Create a product table “product_t” where all the data related to the product is present
+
+CREATE TABLE product_t (
+           PRODUCT_ID INTEGER,
+           VEHICLE_MAKER VARCHAR2(20),
+           VEHICLE_MODEL VARCHAR2(30),
+           VEHICLE_COLOR VARCHAR2(20),
+           VEHICLE_MODEL_YEAR INTEGER,
+           VEHICLE_PRICE DECIMAL(10,5),
+           PRIMARY KEY (PRODUCT_ID)
+);
+/
+
+
+/*-----------------------------------------------------------------------------------------------------------------------------------
+
+                                               Stored Procedures Creation
+                                               
+-----------------------------------------------------------------------------------------------------------------------------------*/
+
+-- To drop the stored procedure if already exists- 
+DROP PROCEDURE vehicles_p;
+
+DROP PROCEDURE order_p;
+
+DROP PROCEDURE customer_p;
+
+DROP PROCEDURE shipper_p;
+
+DROP PROCEDURE product_p;
+
+
+/* List of stored procedures to be created.
+
+   Creating the stored procedure for vehicles_p, order_p, customer_p, product_p, shipper_p*/
+
+
+-- Creation of STORED PROCEDURES
+
+
+--Write the stored procedure for the master table to ingest the data from the temp table
+
+CREATE OR REPLACE PROCEDURE vehicles_p IS
+BEGIN
+    INSERT INTO vehicles_t (
+           SHIPPER_ID,
+           SHIPPER_NAME,
+           SHIPPER_CONTACT_DETAILS,
+           PRODUCT_ID,
+           VEHICLE_MAKER,
+           VEHICLE_MODEL,
+           VEHICLE_COLOR,
+           VEHICLE_MODEL_YEAR,
+           VEHICLE_PRICE,
+           QUANTITY,
+           CUSTOMER_ID,
+           CUSTOMER_NAME,
+           GENDER,
+           JOB_TITLE,
+           PHONE_NUMBER,
+           EMAIL_ADDRESS,
+           CITY,
+           COUNTRY,
+           STATE,
+           CUSTOMER_ADDRESS,
+           ORDER_DATE,
+           ORDER_ID,
+           SHIP_DATE,
+           SHIP_MODE,
+           SHIPPING,
+           POSTAL_CODE,
+           DISCOUNT,
+           CREDIT_CARD_TYPE,
+           CREDIT_CARD_NUMBER,
+           CUSTOMER_FEEDBACK,
+           QUARTER_NUMBER )
+    SELECT * FROM temp_t;
+END vehicles_p;
+/
+
+-- Create a stored procedure called ‘order_p’ to ingest data in to the “order_”t table 
+CREATE OR REPLACE PROCEDURE order_p
+AS
+BEGIN
+    INSERT INTO order_t (
+          ORDER_ID,
+          CUSTOMER_ID,
+          SHIPPER_ID,
+          PRODUCT_ID,
+          QUANTITY,
+          VEHICLE_PRICE,
+          ORDER_DATE,
+          SHIP_DATE,
+          DISCOUNT,
+          SHIP_MODE,
+          SHIPPING,
+          CUSTOMER_FEEDBACK,
+          QUARTER_NUMBER
+    )
+    SELECT DISTINCT
+          ORDER_ID,
+          CUSTOMER_ID,
+          SHIPPER_ID,
+          PRODUCT_ID,
+          QUANTITY,
+          VEHICLE_PRICE,
+          ORDER_DATE,
+          SHIP_DATE,
+          DISCOUNT,
+          SHIP_MODE,
+          SHIPPING,
+          CUSTOMER_FEEDBACK,
+          QUARTER_NUMBER
+    FROM vehicles_t;
+END order_p;
+/
+
+
+-- Create a stored procedure called ‘customer_p’ to ingest data in to the “customer_t” table 
+CREATE OR REPLACE PROCEDURE customer_p
+AS
+BEGIN
+    INSERT INTO customer_t (
+          CUSTOMER_ID,
+          CUSTOMER_NAME,
+          GENDER,
+          JOB_TITLE,
+          PHONE_NUMBER,
+          EMAIL_ADDRESS,
+          CITY,
+          COUNTRY,
+          STATE,
+          CUSTOMER_ADDRESS,
+          POSTAL_CODE,
+          CREDIT_CARD_TYPE,
+          CREDIT_CARD_NUMBER)
+    SELECT DISTINCT
+          CUSTOMER_ID,
+          CUSTOMER_NAME,
+          GENDER,
+          JOB_TITLE,
+          PHONE_NUMBER,
+          EMAIL_ADDRESS,
+          CITY,
+          COUNTRY,
+          STATE,
+          CUSTOMER_ADDRESS,
+          POSTAL_CODE,
+          CREDIT_CARD_TYPE,
+          CREDIT_CARD_NUMBER
+    FROM vehicles_t;
+END customer_p;
+/
+
+-- Create a stored procedure called ‘shipper_p’ to ingest data in to the “shipper_”t table 
+CREATE OR REPLACE PROCEDURE shipper_p
+AS
+BEGIN
+    INSERT INTO shipper_t (
+          SHIPPER_ID,
+          SHIPPER_NAME,
+          SHIPPER_CONTACT_DETAILS
+    )
+    SELECT DISTINCT
+          SHIPPER_ID,
+          SHIPPER_NAME,
+          SHIPPER_CONTACT_DETAILS
+    FROM vehicles_t;
+END shipper_p;
+/
+
+-- Create a stored procedure called ‘product_p’ to ingest data in to the “product_t” table 
+CREATE OR REPLACE PROCEDURE product_p
+AS
+BEGIN
+    INSERT INTO product_t (
+           PRODUCT_ID,
+           VEHICLE_MAKER,
+           VEHICLE_MODEL,
+           VEHICLE_COLOR,
+           VEHICLE_MODEL_YEAR,
+           VEHICLE_PRICE
+    )
+    SELECT DISTINCT
+           PRODUCT_ID,
+           VEHICLE_MAKER,
+           VEHICLE_MODEL,
+           VEHICLE_COLOR,
+           VEHICLE_MODEL_YEAR,
+           VEHICLE_PRICE
+    FROM vehicles_t;
+END product_p;
+/
+
+/*-----------------------------------------------------------------------------------------------------------------------------------
+
+                                              Import data and execute stored procedures for data Ingestion
+                                               
+-----------------------------------------------------------------------------------------------------------------------------------*/
+
+*/
+-- [5] Ingesting the data (INSTRUCTIONS):
+-- Import the new_wheels_sales_qtr_1.csv data from the local in to the temp_t table that 
+   created above - ignore if any error while inserting data
+   To import data in to the "temp_t"  table 
+    1. Right click on "temp_t"  table, choose "Import Data"
+    2. Click on Browse and select the 'new_wheels_sales_qtr_1.csv" then click on Next Again Click on "Next"
+    3. Click on "Next" and select every column until it turns in to dark black then validated the data types
+    4. Click on "Next" and "Finish"*/
+
+
+--Call the stored procedure so that the master table ingests the data from the temp table
+
+CALL vehicles_p();
+
+-- Drop all rows from  the temporary table to import the quarter 2 data to the temp_t table
+TRUNCATE TABLE temp_t;
+
+
+--Call the stored procedure so that the order table ingests the data from the vehicles master table
+
+CALL order_p();
+
+--Call the stored procedure so that the order table ingests the data from the vehicles master table
+
+CALL customer_p();
+
+--Call the stored procedure so that the shipper table ingests the data from the vehicles master table
+
+CALL shipper_p();
+
+--Call the stored procedure so that the product table ingests the data from the vehicles master table
+
+CALL product_p();
+
+/*-----------------------------------------------------------------------------------------------------------------------------------
+
+                                               Views Creation
+                                               
+-----------------------------------------------------------------------------------------------------------------------------------*/
+
+-- To drop the views if already exists- 
+DROP VIEW veh_prod_cust_v;
+
+DROP VIEW veh_ord_cust_v;
+
+
+-- [1] Create a veh_prod_cust_v view, which consists of product and customer details
+
+CREATE VIEW veh_prod_cust_v AS
+    SELECT 
+        prod.PRODUCT_ID,
+        ord.ORDER_ID,
+        cust.CUSTOMER_ID,
+        prod.vehicle_maker,
+        prod.vehicle_model,
+        prod.vehicle_color,
+        prod.vehicle_model_year,
+        prod.vehicle_price,
+        cust.customer_name,
+        cust.gender,
+        cust.job_title,
+        cust.city,
+        cust.country,
+        cust.state,
+        cust.postal_code,
+        cust.credit_card_type
+    FROM product_t prod 
+        INNER JOIN order_t ord
+            ON prod.product_id = ord.product_id
+        INNER JOIN customer_t cust
+            ON ord.customer_id = cust.customer_id;
+
+-- [1] Create a veh_ord_cust_v view, which consists of order and customer details
+
+CREATE VIEW veh_ord_cust_v AS
+    SELECT 
+        ord.ORDER_ID,
+        cust.CUSTOMER_ID,
+        ord.shipper_id,
+        ord.product_id,
+        ord.quantity,
+        ord.vehicle_price,
+        ord.order_date,
+        ord.ship_date,
+        ord.discount,
+        ord.ship_mode,
+        ord.shipping,
+        ord.customer_feedback,
+        ord.quarter_number,
+        cust.customer_name,
+        cust.gender,
+        cust.job_title,
+        cust.city,
+        cust.country,
+        cust.state,
+        cust.postal_code,
+        cust.credit_card_type
+    FROM order_t ord
+            INNER JOIN customer_t cust
+            ON ord.customer_id = cust.customer_id;
+
+/*-----------------------------------------------------------------------------------------------------------------------------------
+
+                                               Functions Creation
+                                               
+-----------------------------------------------------------------------------------------------------------------------------------*/
+
+--Function to calculate revenue
+
+CREATE OR REPLACE FUNCTION calc_revenue_f (vehicle_price VARCHAR2, discount DECIMAL, quantity INT)
+RETURN INT
+DETERMINISTIC
+IS
+ revenue INT;
+BEGIN
+     IF quantity = 0 THEN
+          revenue :=0;
+     ELSIF quantity != 0 THEN
+          revenue :=( vehicle_price - ((discount/100) * vehicle_price)* quantity);
+     END IF;
+     RETURN revenue;
+END calc_revenue_f;
+/
+
+--Query for function
+Select
+     vehicle_price,
+     quantity,
+     discount,
+       calc_revenue_f(vehicle_price, discount, quantity) REVENUE
+from order_t;
+
+--function for days to ship
+
+CREATE OR REPLACE FUNCTION days_to_ship_f(order_date DATE, ship_date DATE)
+RETURN NUMBER
+DETERMINISTIC
+IS
+--  daysts NUMBER
+BEGIN
+    RETURN ship_date - order_date;
+END days_to_ship_f;
+/
+
+---query for function
+
+select 
+    vehicle_price,
+    order_date,
+    ship_date,
+        days_to_ship_f(order_date, ship_date)
+from order_t;
+
+
+  
+  
+-----------------------------------------------------------------------------------------------------------------------------------
+
+                                                         Queries
+                                               
+-----------------------------------------------------------------------------------------------------------------------------------*/
+  
+/*-- QUESTIONS RELATED TO CUSTOMERS
+     [Q1] What is the distribution of customers across states?
+     Hint: For each state, count the number of customers.*/
+
+
+--ANSWER AND QUERY
+SELECT STATE, COUNT(*) AS CustomerCount
+FROM CUSTOMER_T
+GROUP BY STATE
+HAVING COUNT(*) > 25
+Order by CustomerCount desc;
+
+
+
+
+-- ---------------------------------------------------------------------------------------------------------------------------------
+
+/* [Q2] What is the average rating in each quarter?
+-- Very Bad is 1, Bad is 2, Okay is 3, Good is 4, Very Good is 5.
+
+Hint: Use a common table expression and in that CTE, assign numbers to the different customer ratings. 
+      Now average the feedback for each quarter. */
+
+
+--ANSWER AND QUERY
+
+CREATE TABLE RATINGS(
+--QUARTER NUMBER,
+AVG_RATING NUMBER
+--PRIMARY KEY(QUARTER)
+);
+
+
+INSERT INTO RATINGS (AVG_RATING)
+with myRating_qtr1 AS(
+Select customer_feedback,order_id,
+CASE
+   WHEN customer_feedback = 'Very Bad' THEN 1
+   WHEN customer_feedback = 'Bad' THEN 2
+  WHEN customer_feedback = 'Okay' THEN 3
+  WHEN customer_feedback = 'Good' THEN 4
+   WHEN customer_feedback = 'Very Good' THEN 5
+END AS new_rating 
+from order_t
+where quarter_number = 1) 
+--group by customer_feedback)
+Select SUM(new_rating)/COUNT(order_id) AS AVG_RATING from myRating_qtr1;
+
+INSERT INTO RATINGS (AVG_RATING)
+with myRating_qtr2 AS(
+Select customer_feedback,order_id,
+CASE
+   WHEN customer_feedback = 'Very Bad' THEN 1
+   WHEN customer_feedback = 'Bad' THEN 2
+  WHEN customer_feedback = 'Okay' THEN 3
+  WHEN customer_feedback = 'Good' THEN 4
+   WHEN customer_feedback = 'Very Good' THEN 5
+END AS new_rating 
+from order_t
+where quarter_number = 2) 
+--group by customer_feedback)
+Select SUM(new_rating)/COUNT(order_id) AS AVG_RATING from myRating_qtr2;
+
+INSERT INTO RATINGS (AVG_RATING)
+with myRating_qtr3 AS(
+Select customer_feedback,order_id,
+CASE
+   WHEN customer_feedback = 'Very Bad' THEN 1
+   WHEN customer_feedback = 'Bad' THEN 2
+  WHEN customer_feedback = 'Okay' THEN 3
+  WHEN customer_feedback = 'Good' THEN 4
+   WHEN customer_feedback = 'Very Good' THEN 5
+END AS new_rating 
+from order_t
+where quarter_number = 3) 
+--group by customer_feedback)
+Select SUM(new_rating)/COUNT(order_id) AS AVG_RATING from myRating_qtr3;
+
+INSERT INTO RATINGS (AVG_RATING)
+with myRating_qtr4 AS(
+Select customer_feedback,order_id,
+CASE
+   WHEN customer_feedback = 'Very Bad' THEN 1
+   WHEN customer_feedback = 'Bad' THEN 2
+  WHEN customer_feedback = 'Okay' THEN 3
+  WHEN customer_feedback = 'Good' THEN 4
+   WHEN customer_feedback = 'Very Good' THEN 5
+END AS new_rating 
+from order_t
+where quarter_number = 4) 
+--group by customer_feedback)
+Select SUM(new_rating)/COUNT(order_id) AS AVG_RATING from myRating_qtr4;
+
+Select * from Ratings;
+
+ALTER TABLE RATINGS
+ADD (quarter_number NUMBER);
+
+UPDATE RATINGS SET QUARTER_NUMBER = 1 where AVG_RATING = 3.55483870967741935483870967741935483871;
+UPDATE RATINGS SET QUARTER_NUMBER = 2 where AVG_RATING = 3.35496183206106870229007633587786259542;
+UPDATE RATINGS SET QUARTER_NUMBER = 3 where AVG_RATING = 2.95633187772925764192139737991266375546;
+UPDATE RATINGS SET QUARTER_NUMBER = 4 where AVG_RATING = 2.39698492462311557788944723618090452261;
+
+
+
+-- ---------------------------------------------------------------------------------------------------------------------------------
+
+/* [Q3] Are customers getting more dissatisfied over time?
+
+Hint: Need the percentage of different types of customer feedback in each quarter. Use a common table expression and
+	  determine the number of customer feedback in each category as well as the total number of customer feedback in each quarter.
+	  Now use that common table expression to find out the percentage of different types of customer feedback in each quarter.
+      Eg: (total number of very good feedback/total customer feedback)* 100 gives you the percentage of very good feedback.*/
+      
+
+DROP TABLE CUSTOMER_FEEDBACK;
+
+CREATE TABLE CUSTOMER_FEEDBACK (
+quarter_number NUMBER,
+customer_feedback_count NUMBER,
+customer_feedback_category VARCHAR2(10),
+PERCENTAGE NUMBER);
+
+INSERT INTO customer_feedback (customer_feedback_category, customer_feedback_count)
+with myRating_qtr1 AS(
+Select customer_feedback,count(order_id)
+from order_t
+where quarter_number = 1 
+group by customer_feedback)
+Select * from myRating_qtr1 where customer_feedback = 'Very Good';
+
+commit;
+
+select * from customer_feedback;
+
+UPDATE customer_feedback set quarter_number = 1 where customer_feedback_count = 93;commit;
+UPDATE customer_feedback set percentage = TRUNC (customer_feedback_count/(select count(order_id) from order_t where quarter_number =1)*100,2);commit;
+
+INSERT INTO customer_feedback (customer_feedback_category, customer_feedback_count)
+with myRating_qtr2 AS(
+Select customer_feedback,count(order_id)
+from order_t
+where quarter_number = 2 
+group by customer_feedback)
+Select * from myRating_qtr2 where customer_feedback = 'Very Good';
+
+commit;
+
+select * from customer_feedback;
+
+UPDATE customer_feedback set quarter_number = 2 where customer_feedback_count = 75;commit;
+UPDATE customer_feedback set percentage = TRUNC(customer_feedback_count/(select count(order_id) from order_t where quarter_number =2)*100,2);commit;
+
+INSERT INTO customer_feedback (customer_feedback_category, customer_feedback_count)
+with myRating_qtr3 AS(
+Select customer_feedback,count(order_id)
+from order_t
+where quarter_number = 3 
+group by customer_feedback)
+Select * from myRating_qtr3 where customer_feedback = 'Very Good';
+
+commit;
+
+select * from customer_feedback;
+
+UPDATE customer_feedback set quarter_number = 3 where customer_feedback_count = 38;commit;
+UPDATE customer_feedback set percentage = TRUNC(customer_feedback_count/(select count(order_id) from order_t where quarter_number =3)*100,2);commit;
+
+INSERT INTO customer_feedback (customer_feedback_category, customer_feedback_count)
+with myRating_qtr4 AS(
+Select customer_feedback,count(order_id)
+from order_t
+where quarter_number = 4 
+group by customer_feedback)
+Select * from myRating_qtr4 where customer_feedback = 'Very Good';
+
+commit;
+
+select * from customer_feedback;
+
+UPDATE customer_feedback set quarter_number = 4 where customer_feedback_count = 20;commit;
+UPDATE customer_feedback set percentage = TRUNC(customer_feedback_count/(select count(order_id) from order_t where quarter_number =4)*100,2);commit;
+
+
+-- ---------------------------------------------------------------------------------------------------------------------------------
+
+/*[Q4] Which are the top 5 vehicle makers preferred by the customer.
+
+Hint: For each vehicle make what is the count of the customers.*/
+
+--ANSWER AND QUERY
+
+select vehicle_maker, count(customer_id) AS customer_count
+from veh_prod_cust_v
+group by vehicle_maker
+Having count(*) > 45
+order by customer_count desc;
+
+-- ---------------------------------------------------------------------------------------------------------------------------------
+
+/*[Q5] What is the most preferred vehicle make in each state?
+
+Hint: Use the window function RANK() to rank based on the count of customers for each state and vehicle maker. 
+After ranking, take the vehicle maker whose rank is 1.*/
+
+
+--ANSWER AND QUERY
+
+SELECT DISTINCT STATE,vehicle_maker,
+        COUNT(CUSTOMER_ID) OVER (Partition by state) as cust_count_state,
+        --COUNT(CUSTOMER_Id) OVER (Partition by vehicle_maker) as cust_count_maker,
+        RANK() OVER(PARTITION BY STATE ORDER BY vehicle_maker) as some_rank
+from veh_prod_cust_v
+Order by cust_count_state desc;
+
+-- ---------------------------------------------------------------------------------------------------------------------------------
+
+/*QUESTIONS RELATED TO REVENUE and ORDERS 
+
+-- [Q6] What is the trend of number of orders by quarters?
+
+Hint: Count the number of orders for each quarter.*/
+
+--ANSWER AND QUERY
+
+Select quarter_number, count(order_id) as TOTAL_ORDERS
+from order_t
+group by quarter_number
+Order by TOTAL_ORDERS DESC;
+
+
+-- ---------------------------------------------------------------------------------------------------------------------------------
+
+/* [Q7] What is the quarter over quarter % change in revenue? 
+
+Hint: Quarter over Quarter percentage change in revenue means what is the change in revenue from the subsequent quarter to the previous quarter in percentage.
+      To calculate you need to use the common table expression to find out the sum of revenue for each quarter.
+      Then use that CTE along with the LAG function to calculate the QoQ percentage change in revenue.
+      */
+      
+ --ANSWER AND QUERY
+
+    DROP TABLE PERC_REVENUE;
+
+CREATE TABLE PERC_REVENUE(
+QUARTER_NUMBER NUMBER,
+Rev_SUM NUMBER,
+Order_count NUMBER,
+TOTAL NUMBER,
+QnQ NUMBER);
+
+INSERT INTO PERC_REVENUE(quarter_number,Order_count,Rev_sum)
+with percentage_revenue AS (
+Select 
+     quarter_number,
+     count(order_id),
+     sum(revenue) AS Rev_sum
+from (
+     select 
+        quarter_number,order_id,
+        calc_revenue_f(vehicle_price,discount,quantity) revenue
+        from order_t
+        )
+Group by quarter_number)
+Select *  from percentage_revenue;
+
+commit;
+
+select * from perc_revenue;
+
+UPDATE perc_revenue set total = (select sum(Rev_sum) from perc_revenue); commit;
+
+UPDATE perc_revenue set QnQ = TRUNC((select (Rev_sum/Total * 100) from perc_revenue where quarter_number =1),2) where quarter_number =1; commit;
+UPDATE perc_revenue set QnQ = TRUNC((select (Rev_sum/Total * 100) from perc_revenue where quarter_number =2),2) where quarter_number = 2 ; commit;
+UPDATE perc_revenue set QnQ = TRUNC((select (Rev_sum/Total * 100) from perc_revenue where quarter_number =3),2) where quarter_number = 3; commit;
+UPDATE perc_revenue set QnQ = TRUNC((select (Rev_sum/Total * 100) from perc_revenue where quarter_number =4),2) where quarter_number = 4; commit;
+/
+
+Select quarter_number,Order_count,Rev_sum,qnq,
+  LAG(QnQ) Over(Order by quarter_number) as prev
+from perc_revenue;      
+      
+      
+
+-- ---------------------------------------------------------------------------------------------------------------------------------
+
+/* [Q8] What is the trend of revenue and orders by quarters?
+
+Hint: Find out the sum of revenue and count the number of orders for each quarter.*/
+
+
+--ANSWER AND QUERY
+
+Select 
+     quarter_number,
+     count(order_id),
+     sum(revenue)
+from (
+     select 
+        quarter_number,order_id,
+        calc_revenue_f(vehicle_price,discount,quantity) revenue
+        from order_t
+        )
+Group by quarter_number;
+
+
+-- --------------------------count-------------------------------------------------------------------------------------------------------
+
+/* QUESTIONS RELATED TO SHIPPING 
+    [Q9] What is the average discount offered for different types of credit cards?
+
+Hint: Find out the average of discount for each credit card type.*/
+
+--ANSWER AND QUERY
+
+
+select credit_card_type, Trunc(avg(discount),2)
+from veh_ord_cust_v
+group by credit_card_type;
+
+-- ---------------------------------------------------------------------------------------------------------------------------------
+
+/* [Q10] What is the average time taken to ship the placed orders for each quarters?
+   Use days_to_ship_f function to compute the time taken to ship the orders.
+
+Hint: For each quarter, find out the average of the function that you created to calculate the difference between the ship date and the order date.*/
+
+--ANSWER AND QUERY
+
+CREATE TABLE SHIP (
+quarter_number NUMBER,
+ship_time NUMBER);
+
+INSERT INTO SHIP
+(quarter_number,ship_time) VALUES (1,null);
+
+INSERT INTO SHIP
+(quarter_number,ship_time) VALUES (2,null);
+
+INSERT INTO SHIP
+(quarter_number,ship_time) VALUES (3,null);
+
+INSERT INTO SHIP
+(quarter_number,ship_time) VALUES (4,null);
+
+Select * from ship;
+
+INSERT INTO SHIP (ship_time)
+with qtr1 AS
+(Select 
+days_to_ship_f(order_date,ship_date) AS ship_time
+from order_t
+where quarter_number =1)
+Select SUM(ship_time)/Count(ship_time) from qtr1;
+
+INSERT INTO SHIP (ship_time)
+with qtr1 AS
+(Select 
+days_to_ship_f(order_date,ship_date) AS ship_time
+from order_t
+where quarter_number =1)
+Select SUM(ship_time)/Count(ship_time) from qtr1;
+
+INSERT INTO SHIP (ship_time)
+with qtr2 AS
+(Select 
+days_to_ship_f(order_date,ship_date) AS ship_time
+from order_t
+where quarter_number =2)
+Select SUM(ship_time)/Count(ship_time) from qtr2;
+
+INSERT INTO SHIP (ship_time)
+with qtr3 AS
+(Select 
+days_to_ship_f(order_date,ship_date) AS ship_time
+from order_t
+where quarter_number =3)
+Select SUM(ship_time)/Count(ship_time) from qtr3;
+
+INSERT INTO SHIP (ship_time)
+with qtr4 AS
+(Select 
+days_to_ship_f(order_date,ship_date) AS ship_time
+from order_t
+where quarter_number =4)
+Select SUM(ship_time)/Count(ship_time) from qtr4;
+
+UPDATE SHIP SET QUARTER_NUMBER = 1 where ship_time = 57.16774193548387096774193548387096774194;
+UPDATE SHIP SET QUARTER_NUMBER = 2 where ship_time = 71.11068702290076335877862595419847328244;
+UPDATE SHIP SET QUARTER_NUMBER = 3 where ship_time = 117.755458515283842794759825327510917031;
+UPDATE SHIP SET QUARTER_NUMBER = 4 where ship_time = 174.095477386934673366834170854271356784;
+
+Select * from ship;
+
+
+UPDATE SHIP SET ship_time = Trunc(ship_time,2) where quarter_number = 1;
+UPDATE SHIP SET ship_time = Trunc(ship_time,2) where quarter_number = 2;
+UPDATE SHIP SET ship_time = Trunc(ship_time,2) where quarter_number = 3;
+UPDATE SHIP SET ship_time = Trunc(ship_time,2) where quarter_number = 4;
+
+
+-- --------------------------------------------------------Done----------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------------------------------------------------------
+
+
+
